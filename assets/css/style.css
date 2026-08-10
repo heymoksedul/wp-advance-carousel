@@ -1,0 +1,216 @@
+.advance-carousel-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.advance-highlight-swiper {
+    width: 100%;
+    overflow: hidden; 
+}
+
+/* Base slide styles */
+.advance-carousel-wrapper .advance-highlight-swiper .swiper-slide {
+    width: 2%; /* Default size for non-active slides (furthest right or left) */
+    transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    cursor: pointer;
+}
+
+/* Active slide is much wider */
+.advance-carousel-wrapper .advance-highlight-swiper .swiper-slide-active {
+    width: 62%;
+    cursor: default;
+}
+
+/* 2nd slide */
+.advance-carousel-wrapper .advance-highlight-swiper .swiper-slide-active + .swiper-slide {
+    width: 20%;
+}
+
+/* 3rd slide */
+.advance-carousel-wrapper .advance-highlight-swiper .swiper-slide-active + .swiper-slide + .swiper-slide {
+    width: 8%;
+}
+
+/* 4th slide */
+.advance-carousel-wrapper .advance-highlight-swiper .swiper-slide-active + .swiper-slide + .swiper-slide + .swiper-slide {
+    width: 3%;
+}
+
+.advance-slide-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 400px; /* Base height */
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f3f4f6;
+}
+
+.advance-slide-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.advance-slide-title {
+    position: absolute;
+    bottom: 25px;
+    left: 25px;
+    color: #fff;
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.2;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.4s ease 0.2s; /* delay slightly so it fades in after expansion */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90%;
+}
+
+/* Only show title on the active slide */
+.advance-carousel-wrapper .advance-highlight-swiper .swiper-slide-active .advance-slide-title {
+    opacity: 1;
+}
+
+/* Bottom content area */
+.advance-carousel-bottom-content {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.advance-slide-desc-area {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    gap: 30px;
+}
+
+.advance-slide-desc {
+    flex: 1;
+    color: #4b5563;
+    font-size: 17px;
+    line-height: 1.5;
+}
+
+.advance-slide-desc strong {
+    color: #111827;
+    font-weight: 500;
+}
+
+.advance-slide-desc p {
+    margin-bottom: 0;
+}
+
+.advance-slide-action {
+    flex-shrink: 0;
+}
+
+.advance-slide-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 18px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    color: #4f46e5;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    background-color: #fff;
+}
+
+.advance-slide-link i {
+    margin-left: 6px;
+    font-size: 11px;
+}
+
+.advance-slide-link:hover {
+    background-color: #f9fafb;
+    border-color: #9ca3af;
+    color: #4338ca;
+}
+
+/* Navigation Arrows */
+.advance-carousel-nav-container {
+    position: absolute;
+    z-index: 10;
+    display: flex;
+    gap: 8px;
+}
+
+/* Top Right Positioning */
+.ac-arrow-pos-top_right .advance-carousel-nav-container {
+    top: -45px;
+    right: 0;
+}
+
+/* Center Sides Positioning */
+.ac-arrow-pos-center_sides .advance-carousel-nav-container {
+    top: 40%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    justify-content: space-between;
+    pointer-events: none;
+    padding: 0 15px;
+}
+
+.ac-arrow-pos-center_sides .advance-swiper-button-prev,
+.ac-arrow-pos-center_sides .advance-swiper-button-next {
+    pointer-events: auto;
+}
+
+.ac-arrow-pos-bottom_right .advance-carousel-nav-container {
+    top: auto;
+    bottom: -60px;
+    right: 0;
+}
+
+.advance-swiper-button-prev,
+.advance-swiper-button-next {
+    width: 30px;
+    height: 30px;
+    background-color: #eef2ff;
+    color: #4f46e5;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 12px;
+}
+
+.advance-swiper-button-prev:hover,
+.advance-swiper-button-next:hover {
+    background-color: #e0e7ff;
+    color: #4338ca;
+}
+
+.advance-swiper-button-prev.swiper-button-disabled,
+.advance-swiper-button-next.swiper-button-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .advance-carousel-wrapper .advance-highlight-swiper .swiper-slide {
+        width: 85%;
+    }
+    .advance-carousel-wrapper .advance-highlight-swiper .swiper-slide-active {
+        width: 85%;
+    }
+    .advance-slide-desc-area {
+        flex-direction: column;
+    }
+    .advance-slide-action {
+        align-self: flex-start;
+        margin-top: 15px;
+    }
+}
