@@ -1,48 +1,120 @@
 .advance-carousel-wrapper {
     position: relative;
     width: 100%;
+    /* Add some padding in case shadows or active slides overlap slightly */
+    padding: 10px 0;
 }
 
-.advance-highlight-swiper {
-    width: 100%;
-    overflow: hidden; 
+/* Header with arrows */
+.advance-carousel-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
 }
 
-/* Base slide styles */
-.advance-carousel-wrapper .advance-highlight-swiper .swiper-slide {
-    width: 2%; /* Default size for non-active slides (furthest right or left) */
-    transition: width 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+.advance-carousel-nav {
+    display: flex;
+    gap: 10px;
+}
+
+.advance-carousel-nav-prev,
+.advance-carousel-nav-next {
+    width: 40px;
+    height: 40px;
+    background-color: #f3f4f6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition: background-color 0.3s;
+    color: #4f46e5;
 }
 
-/* Active slide is much wider */
-.advance-carousel-wrapper .advance-highlight-swiper .swiper-slide-active {
-    width: 62%;
+.advance-carousel-nav-prev:hover,
+.advance-carousel-nav-next:hover {
+    background-color: #e5e7eb;
+}
+
+/* Carousel Container */
+.advance-highlight-carousel {
+    display: flex;
+    width: 100%;
+    position: relative;
+}
+
+/* Slide Base - Hidden by default for items beyond the 7th */
+.advance-carousel-slide {
+    width: 0;
+    opacity: 0;
+    margin-right: 0;
+    flex-shrink: 0;
+    overflow: hidden;
+    transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+/* Make the first 7 slides visible and apply margin (gap) */
+.advance-carousel-slide:nth-child(1),
+.advance-carousel-slide:nth-child(2),
+.advance-carousel-slide:nth-child(3),
+.advance-carousel-slide:nth-child(4),
+.advance-carousel-slide:nth-child(5),
+.advance-carousel-slide:nth-child(6) {
+    margin-right: 15px; /* Spacing between visible items */
+}
+
+.advance-carousel-slide:nth-child(7) {
+    margin-right: 0; /* No margin on the last visible item */
+}
+
+/* Explicit Widths matching exactly user request but using calc() to prevent overflow */
+/* Total gaps = 6 * 15px = 90px. Total 15px items = 3 * 15px = 45px. Total fixed width = 135px */
+
+/* 1st (Active) */
+.advance-carousel-slide:nth-child(1) {
+    width: calc(55% - 75px);
+    opacity: 1;
     cursor: default;
 }
 
-/* 2nd slide */
-.advance-carousel-wrapper .advance-highlight-swiper .swiper-slide-active + .swiper-slide {
-    width: 20%;
+/* 2nd */
+.advance-carousel-slide:nth-child(2) {
+    width: calc(20% - 27px);
+    opacity: 1;
 }
 
-/* 3rd slide */
-.advance-carousel-wrapper .advance-highlight-swiper .swiper-slide-active + .swiper-slide + .swiper-slide {
-    width: 8%;
+/* 3rd */
+.advance-carousel-slide:nth-child(3) {
+    width: calc(15% - 20px);
+    opacity: 1;
 }
 
-/* 4th slide */
-.advance-carousel-wrapper .advance-highlight-swiper .swiper-slide-active + .swiper-slide + .swiper-slide + .swiper-slide {
-    width: 3%;
+/* 4th */
+.advance-carousel-slide:nth-child(4) {
+    width: calc(10% - 13px);
+    opacity: 1;
 }
 
+/* 5th, 6th, 7th (Tiny slivers 15px each) */
+.advance-carousel-slide:nth-child(5),
+.advance-carousel-slide:nth-child(6),
+.advance-carousel-slide:nth-child(7) {
+    width: 15px;
+    opacity: 1;
+}
+
+/* Inner Image Wrapper */
 .advance-slide-image-wrapper {
     position: relative;
-    width: 100%;
-    height: 400px; /* Base height */
+    width: 100%; /* Adapts to parent width */
+    height: 400px;
     border-radius: 8px;
     overflow: hidden;
     background-color: #f3f4f6;
+    /* Important: Prevent inner content from breaking layout when container width is 15px */
+    min-width: 100%;
 }
 
 .advance-slide-bg {
@@ -52,165 +124,86 @@
     display: block;
 }
 
-.advance-slide-title {
-    position: absolute;
-    bottom: 25px;
-    left: 25px;
-    color: #fff;
-    margin: 0;
-    font-size: 24px;
-    font-weight: 600;
-    line-height: 1.2;
-    z-index: 2;
-    opacity: 0;
-    transition: opacity 0.4s ease 0.2s; /* delay slightly so it fades in after expansion */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 90%;
-}
-
-/* Only show title on the active slide */
-.advance-carousel-wrapper .advance-highlight-swiper .swiper-slide-active .advance-slide-title {
-    opacity: 1;
-}
-
-/* Bottom content area */
-.advance-carousel-bottom-content {
-    margin-top: 20px;
-    width: 100%;
-}
-
-.advance-slide-desc-area {
+/* Footer Content */
+.advance-carousel-footer-content {
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;
-    width: 100%;
-    gap: 30px;
+    margin-top: 20px;
+    padding: 0 10px;
 }
 
-.advance-slide-desc {
+.advance-carousel-desc {
     flex: 1;
+    max-width: 60%;
+    font-size: 16px;
     color: #4b5563;
-    font-size: 17px;
-    line-height: 1.5;
 }
 
-.advance-slide-desc strong {
-    color: #111827;
-    font-weight: 500;
+.advance-carousel-desc p {
+    margin: 0;
 }
 
-.advance-slide-desc p {
-    margin-bottom: 0;
-}
-
-.advance-slide-action {
-    flex-shrink: 0;
+.advance-carousel-action {
+    display: flex;
+    align-items: center;
 }
 
 .advance-slide-link {
     display: inline-flex;
     align-items: center;
-    padding: 10px 18px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
+    gap: 8px;
     color: #4f46e5;
     text-decoration: none;
-    font-size: 14px;
     font-weight: 500;
-    transition: all 0.2s;
-    background-color: #fff;
-}
-
-.advance-slide-link i {
-    margin-left: 6px;
-    font-size: 11px;
+    padding: 10px 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    transition: all 0.3s;
 }
 
 .advance-slide-link:hover {
     background-color: #f9fafb;
-    border-color: #9ca3af;
-    color: #4338ca;
 }
 
-/* Navigation Arrows */
-.advance-carousel-nav-container {
-    position: absolute;
-    z-index: 10;
-    display: flex;
-    gap: 8px;
+.advance-slide-link i {
+    font-size: 14px;
 }
 
-/* Top Right Positioning */
-.ac-arrow-pos-top_right .advance-carousel-nav-container {
-    top: -45px;
-    right: 0;
+/* Optional Arrow Positions (Handled in Elementor config normally) */
+.ac-arrow-pos-bottom_right .advance-carousel-header {
+    display: none; /* Hide top arrows */
+}
+.ac-arrow-pos-bottom_right .advance-carousel-footer-content {
+    position: relative;
+}
+.ac-arrow-pos-bottom_right .advance-carousel-action {
+    margin-right: 120px; /* Make space for arrows */
 }
 
-/* Center Sides Positioning */
-.ac-arrow-pos-center_sides .advance-carousel-nav-container {
-    top: 40%;
-    left: 0;
-    right: 0;
-    transform: translateY(-50%);
-    justify-content: space-between;
-    pointer-events: none;
-    padding: 0 15px;
-}
-
-.ac-arrow-pos-center_sides .advance-swiper-button-prev,
-.ac-arrow-pos-center_sides .advance-swiper-button-next {
-    pointer-events: auto;
-}
-
-.ac-arrow-pos-bottom_right .advance-carousel-nav-container {
-    top: auto;
-    bottom: -60px;
-    right: 0;
-}
-
-.advance-swiper-button-prev,
-.advance-swiper-button-next {
-    width: 30px;
-    height: 30px;
-    background-color: #eef2ff;
-    color: #4f46e5;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 12px;
-}
-
-.advance-swiper-button-prev:hover,
-.advance-swiper-button-next:hover {
-    background-color: #e0e7ff;
-    color: #4338ca;
-}
-
-.advance-swiper-button-prev.swiper-button-disabled,
-.advance-swiper-button-next.swiper-button-disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Responsive */
+/* Ensure responsiveness */
 @media (max-width: 768px) {
-    .advance-carousel-wrapper .advance-highlight-swiper .swiper-slide {
-        width: 85%;
+    .advance-carousel-slide:nth-child(1) { width: 75%; }
+    .advance-carousel-slide:nth-child(2) { width: calc(25% - 15px); }
+    .advance-carousel-slide:nth-child(3) {
+        width: 0;
+        margin-right: 0;
+        opacity: 0;
     }
-    .advance-carousel-wrapper .advance-highlight-swiper .swiper-slide-active {
-        width: 85%;
+    .advance-carousel-slide:nth-child(4),
+    .advance-carousel-slide:nth-child(5),
+    .advance-carousel-slide:nth-child(6),
+    .advance-carousel-slide:nth-child(7) {
+        width: 0;
+        margin-right: 0;
+        opacity: 0;
     }
-    .advance-slide-desc-area {
+    
+    .advance-carousel-footer-content {
         flex-direction: column;
+        gap: 15px;
     }
-    .advance-slide-action {
-        align-self: flex-start;
-        margin-top: 15px;
+    .advance-carousel-desc {
+        max-width: 100%;
     }
 }

@@ -6,39 +6,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 
 	public function get_name() {
-		return 'advance_highlight_carousel';
+		return 'advance-highlight-carousel';
 	}
 
 	public function get_title() {
-		return esc_html__( 'Highlight Carousel', 'advance-carousel' );
+		return esc_html__( 'Advance Highlight Carousel', 'advance-carousel' );
 	}
 
 	public function get_icon() {
-		return 'eicon-image-carousel';
+		return 'eicon-slider-push';
 	}
 
 	public function get_categories() {
-		return [ 'general' ]; // Or a custom category if you created one
-	}
-
-	public function get_script_depends() {
-		// Elementor already registers 'swiper', we also register our own script
-		return [ 'swiper', 'advance-carousel-script' ];
+		return [ 'general' ]; // You can change this to a custom category if needed
 	}
 
 	public function get_style_depends() {
-		return [ 'e-swiper', 'advance-carousel-style' ];
+		return [ 'advance-carousel-style' ];
+	}
+
+	public function get_script_depends() {
+		return [ 'advance-carousel-script' ];
 	}
 
 	protected function register_controls() {
-
 		// ==========================================
 		// Content Tab
 		// ==========================================
 		$this->start_controls_section(
 			'content_section',
 			[
-				'label' => esc_html__( 'Slides', 'advance-carousel' ),
+				'label' => esc_html__( 'Carousel Items', 'advance-carousel' ),
 				'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
 			]
 		);
@@ -46,18 +44,9 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 		$repeater = new \Elementor\Repeater();
 
 		$repeater->add_control(
-			'item_title', [
-				'label' => esc_html__( 'Title', 'advance-carousel' ),
-				'type' => \Elementor\Controls_Manager::TEXT,
-				'default' => esc_html__( 'Slide Title' , 'advance-carousel' ),
-				'label_block' => true,
-			]
-		);
-
-		$repeater->add_control(
 			'item_image',
 			[
-				'label' => esc_html__( 'Choose Image', 'advance-carousel' ),
+				'label' => esc_html__( 'Image', 'advance-carousel' ),
 				'type' => \Elementor\Controls_Manager::MEDIA,
 				'default' => [
 					'url' => \Elementor\Utils::get_placeholder_image_src(),
@@ -66,7 +55,17 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 		);
 
 		$repeater->add_control(
-			'item_description',
+			'item_title',
+			[
+				'label' => esc_html__( 'Title (Admin Only)', 'advance-carousel' ),
+				'type' => \Elementor\Controls_Manager::TEXT,
+				'default' => esc_html__( 'Slide Title' , 'advance-carousel' ),
+				'label_block' => true,
+			]
+		);
+
+		$repeater->add_control(
+			'item_desc',
 			[
 				'label' => esc_html__( 'Description (Bottom Text)', 'advance-carousel' ),
 				'type' => \Elementor\Controls_Manager::WYSIWYG,
@@ -258,15 +257,6 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 				'prefix_class' => 'ac-arrow-pos-',
 			]
 		);
-		
-		$this->add_control(
-			'gap',
-			[
-				'label' => esc_html__( 'Space Between Slides', 'advance-carousel' ),
-				'type' => \Elementor\Controls_Manager::NUMBER,
-				'default' => 20,
-			]
-		);
 
 		$this->end_controls_section();
 
@@ -325,54 +315,44 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 		$this->start_controls_section(
 			'style_content_section',
 			[
-				'label' => esc_html__( 'Content', 'advance-carousel' ),
+				'label' => esc_html__( 'Content Style', 'advance-carousel' ),
 				'tab' => \Elementor\Controls_Manager::TAB_STYLE,
 			]
 		);
-		
-		$this->add_control(
-			'title_color',
-			[
-				'label' => esc_html__( 'Title Color', 'advance-carousel' ),
-				'type' => \Elementor\Controls_Manager::COLOR,
-				'selectors' => [
-					'{{WRAPPER}} .advance-slide-title' => 'color: {{VALUE}}',
-				],
-			]
-		);
-		
+
 		$this->add_group_control(
 			\Elementor\Group_Control_Typography::get_type(),
 			[
-				'name' => 'title_typography',
-				'label' => esc_html__( 'Title Typography', 'advance-carousel' ),
-				'selector' => '{{WRAPPER}} .advance-slide-title',
+				'name' => 'desc_typography',
+				'label' => esc_html__( 'Description Typography', 'advance-carousel' ),
+				'selector' => '{{WRAPPER}} .advance-carousel-desc p, {{WRAPPER}} .advance-carousel-desc',
 			]
 		);
-		
+
 		$this->add_control(
 			'desc_color',
 			[
 				'label' => esc_html__( 'Description Color', 'advance-carousel' ),
 				'type' => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
-					'{{WRAPPER}} .advance-slide-desc' => 'color: {{VALUE}}',
+					'{{WRAPPER}} .advance-carousel-desc p, {{WRAPPER}} .advance-carousel-desc' => 'color: {{VALUE}};',
+				],
+			]
+		);
+		
+		$this->add_control(
+			'button_color',
+			[
+				'label' => esc_html__( 'Button Text Color', 'advance-carousel' ),
+				'type' => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .advance-slide-link' => 'color: {{VALUE}};',
 				],
 				'separator' => 'before',
 			]
 		);
-		
-		$this->add_group_control(
-			\Elementor\Group_Control_Typography::get_type(),
-			[
-				'name' => 'desc_typography',
-				'label' => esc_html__( 'Description Typography', 'advance-carousel' ),
-				'selector' => '{{WRAPPER}} .advance-slide-desc',
-			]
-		);
 
 		$this->end_controls_section();
-
 	}
 
 	protected function render() {
@@ -382,69 +362,54 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 			return;
 		}
 
-		// Pass settings to frontend via data attributes
-		$swiper_settings = [
-			'autoplay' => ( 'yes' === $settings['autoplay'] ) ? [ 'delay' => $settings['autoplay_speed'] ] : false,
-			'spaceBetween' => $settings['gap'],
-		];
-		
 		$this->add_render_attribute( 'wrapper', 'class', 'advance-carousel-wrapper' );
-		$this->add_render_attribute( 'wrapper', 'data-swiper-settings', wp_json_encode( $swiper_settings ) );
+		$this->add_render_attribute( 'wrapper', 'data-settings', wp_json_encode( [
+			'autoplay' => $settings['autoplay'] === 'yes',
+			'speed'    => $settings['autoplay_speed'],
+		] ) );
 
 		?>
 		<div <?php $this->print_render_attribute_string( 'wrapper' ); ?>>
 			
-			<div class="swiper advance-highlight-swiper">
-				<div class="swiper-wrapper">
-					<?php foreach ( $settings['slides'] as $index => $item ) : 
-						$desc = wp_kses_post( $item['item_description'] );
-						$link_url = esc_url( $item['item_link']['url'] );
-						$link_text = esc_html( $item['item_link_text'] );
-						$is_external = $item['item_link']['is_external'] ? 'target="_blank"' : '';
-					?>
-						<div class="swiper-slide" 
-							data-desc="<?php echo esc_attr( $desc ); ?>" 
-							data-link="<?php echo esc_attr( $link_url ); ?>" 
-							data-link-text="<?php echo esc_attr( $link_text ); ?>"
-							data-external="<?php echo esc_attr( $is_external ); ?>">
-							
-							<div class="advance-slide-image-wrapper">
-								<?php if ( ! empty( $item['item_image']['url'] ) ) : ?>
-									<img src="<?php echo esc_url( $item['item_image']['url'] ); ?>" alt="<?php echo esc_attr( $item['item_title'] ); ?>" class="advance-slide-bg">
-								<?php endif; ?>
-								
-								<?php if ( ! empty( $item['item_title'] ) ) : ?>
-									<h3 class="advance-slide-title"><?php echo esc_html( $item['item_title'] ); ?></h3>
-								<?php endif; ?>
-							</div>
+			<div class="advance-carousel-header">
+				<?php if ( 'yes' === $settings['show_arrows'] ) : ?>
+					<div class="advance-carousel-nav">
+						<div class="advance-carousel-nav-prev">
+							<i class="eicon-chevron-left" aria-hidden="true"></i>
 						</div>
-					<?php endforeach; ?>
-				</div>
-			</div>
-
-			<!-- Full width bottom content area -->
-			<div class="advance-carousel-bottom-content">
-				<div class="advance-slide-desc-area">
-					<div class="advance-slide-desc js-dynamic-desc">
-						<!-- Content injected by JS -->
+						<div class="advance-carousel-nav-next">
+							<i class="eicon-chevron-right" aria-hidden="true"></i>
+						</div>
 					</div>
-					<div class="advance-slide-action js-dynamic-action">
-						<!-- Content injected by JS -->
+				<?php endif; ?>
+			</div>
+
+			<div class="advance-highlight-carousel">
+				<?php foreach ( $settings['slides'] as $index => $item ) : 
+					$desc = ! empty( $item['item_desc'] ) ? wp_kses_post( $item['item_desc'] ) : '';
+					$link_url = ! empty( $item['item_link']['url'] ) ? esc_url( $item['item_link']['url'] ) : '#';
+					$link_text = ! empty( $item['item_link_text'] ) ? esc_html( $item['item_link_text'] ) : 'Learn More';
+					$is_external = ! empty( $item['item_link']['is_external'] ) ? 'true' : 'false';
+				?>
+					<div class="advance-carousel-slide" 
+						data-desc="<?php echo esc_attr( $desc ); ?>" 
+						data-link="<?php echo esc_attr( $link_url ); ?>" 
+						data-link-text="<?php echo esc_attr( $link_text ); ?>"
+						data-external="<?php echo esc_attr( $is_external ); ?>">
+						
+						<div class="advance-slide-image-wrapper">
+							<?php if ( ! empty( $item['item_image']['url'] ) ) : ?>
+								<img src="<?php echo esc_url( $item['item_image']['url'] ); ?>" alt="<?php echo esc_attr( $item['item_title'] ); ?>" class="advance-slide-bg">
+							<?php endif; ?>
+						</div>
 					</div>
-				</div>
+				<?php endforeach; ?>
 			</div>
 
-			<?php if ( 'yes' === $settings['show_arrows'] ) : ?>
-			<div class="advance-carousel-nav-container">
-				<div class="advance-swiper-button-prev">
-					<i class="eicon-chevron-left" aria-hidden="true"></i>
-				</div>
-				<div class="advance-swiper-button-next">
-					<i class="eicon-chevron-right" aria-hidden="true"></i>
-				</div>
+			<div class="advance-carousel-footer-content">
+				<div class="advance-carousel-desc"></div>
+				<div class="advance-carousel-action"></div>
 			</div>
-			<?php endif; ?>
-
 		</div>
 		<?php
 	}

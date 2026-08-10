@@ -2,32 +2,76 @@ class AdvanceHighlightCarouselHandler extends elementorModules.frontend.handlers
     getDefaultSettings() {
         return {
             selectors: {
-                swiperContainer: '.advance-highlight-swiper',
-                nextEl: '.advance-swiper-button-next',
-                prevEl: '.advance-swiper-button-prev',
-                descEl: '.js-dynamic-desc',
-                actionEl: '.js-dynamic-action',
+                track: '.advance-highlight-carousel',
+                nextEl: '.advance-carousel-nav-next',
+                prevEl: '.advance-carousel-nav-prev',
+                descEl: '.advance-carousel-desc',
+                actionEl: '.advance-carousel-action',
+                slide: '.advance-carousel-slide'
             }
         };
     }
 
     getDefaultElements() {
-        const selectors = this.getSettings( 'selectors' );
+        const selectors = this.getSettings('selectors');
         return {
-            $swiperContainer: this.$element.find( selectors.swiperContainer ),
-            $nextEl: this.$element.find( selectors.nextEl ),
-            $prevEl: this.$element.find( selectors.prevEl ),
-            $descEl: this.$element.find( selectors.descEl ),
-            $actionEl: this.$element.find( selectors.actionEl ),
+            $track: this.$element.find(selectors.track),
+            $nextEl: this.$element.find(selectors.nextEl),
+            $prevEl: this.$element.find(selectors.prevEl),
+            $descEl: this.$element.find(selectors.descEl),
+            $actionEl: this.$element.find(selectors.actionEl)
         };
+    }
+
+    bindEvents() {
+        this.elements.$nextEl.on('click', () => this.moveNext());
+        this.elements.$prevEl.on('click', () => this.movePrev());
+        
+        // Allow clicking on any slide to make it active
+        this.elements.$track.on('click', '.advance-carousel-slide', (e) => {
+            const index = jQuery(e.currentTarget).index();
+            if (index > 0) {
+                // If clicked slide is not first, move next until it is first
+                for(let i=0; i<index; i++){
+                    this.moveNext();
+                }
+            }
+        });
     }
 
     onInit() {
         super.onInit();
-        this.initSwiper();
+        this.updateBottomContent();
+        
+        // Autoplay
+        const settings = this.$element.find('.advance-carousel-wrapper').data('settings');
+        if (settings && settings.autoplay) {
+            this.autoplayInterval = setInterval(() => this.moveNext(), settings.speed || 3000);
+            
+            // Pause on hover
+            this.$element.on('mouseenter', () => clearInterval(this.autoplayInterval));
+            this.$element.on('mouseleave', () => {
+                this.autoplayInterval = setInterval(() => this.moveNext(), settings.speed || 3000);
+            });
+        }
     }
 
-    updateBottomContent(activeSlide) {
+    moveNext() {
+        const track = this.elements.$track[0];
+        const first = track.firstElementChild;
+        track.appendChild(first);
+        this.updateBottomContent();
+    }
+
+    movePrev() {
+        const track = this.elements.$track[0];
+        const last = track.lastElementChild;
+        track.prepend(last);
+        this.updateBottomContent();
+    }
+
+    updateBottomContent() {
+        const activeSlide = this.elements.$track[0].firstElementChild;
         if (!activeSlide) return;
         const $slide = jQuery(activeSlide);
         const desc = $slide.attr('data-desc');
@@ -42,86 +86,19 @@ class AdvanceHighlightCarouselHandler extends elementorModules.frontend.handlers
         }
 
         if (linkText) {
-            const targetAttr = isExternal ? 'target="_blank"' : '';
+            const targetAttr = isExternal === 'true' ? 'target="_blank"' : '';
             const href = (link && link !== '#') ? link : 'javascript:void(0)';
             this.elements.$actionEl.html(`<a href="${href}" class="advance-slide-link" ${targetAttr}>${linkText} <i class="eicon-chevron-right" aria-hidden="true"></i></a>`);
         } else {
             this.elements.$actionEl.html('');
         }
     }
-
-    async initSwiper() {
-        const { $swiperContainer, $nextEl, $prevEl } = this.elements;
-        
-        if ( ! $swiperContainer.length ) {
-            return;
-        }
-
-        const settingsWrapper = this.$element.find('.advance-carousel-wrapper');
-        let customSettings = {};
-        if (settingsWrapper.length) {
-            try {
-                customSettings = JSON.parse(settingsWrapper.attr('data-swiper-settings'));
-            } catch (e) {}
-        }
-
-        const Swiper = elementorFrontend.utils.swiper;
-        
-        const self = this;
-        const swiperOptions = {
-            slidesPerView: 'auto',
-            centeredSlides: false,
-            spaceBetween: customSettings.spaceBetween || 20,
-            loop: true,
-            allowTouchMove: false,
-            watchSlidesProgress: true,
-            speed: 600,
-            navigation: {
-                nextEl: $nextEl[0],
-                prevEl: $prevEl[0],
-            },
-            autoplay: customSettings.autoplay || false,
-            slideToClickedSlide: true,
-            on: {
-                init: function () {
-                    self.updateBottomContent(this.slides[this.activeIndex]);
-                },
-                slideChange: function () {
-                    self.updateBottomContent(this.slides[this.activeIndex]);
-                },
-                slideChangeTransitionStart: function (swiper) {
-                    // Force Swiper to continuously recalculate wrapper translation 
-                    // while CSS width transition is happening (600ms)
-                    let start = null;
-                    const duration = 600;
-                    function step(timestamp) {
-                        if (!start) start = timestamp;
-                        const progress = timestamp - start;
-                        swiper.updateSize();
-                        swiper.updateSlides();
-                        if (progress < duration) {
-                            window.requestAnimationFrame(step);
-                        }
-                    }
-                    window.requestAnimationFrame(step);
-                }
-            }
-        };
-
-        this.swiper = new Swiper( $swiperContainer, swiperOptions );
-        
-        if ( this.swiper instanceof Promise ) {
-            this.swiper = await this.swiper;
-        }
-    }
 }
 
-jQuery( window ).on( 'elementor/frontend/init', () => {
-    const addHandler = ( $element ) => {
-        elementorFrontend.elementsHandler.addHandler( AdvanceHighlightCarouselHandler, {
-            $element,
-        } );
-    };
-
-    elementorFrontend.hooks.addAction( 'frontend/element_ready/advance_highlight_carousel.default', addHandler );
-} );
+jQuery(window).on('elementor/frontend/init', () => {
+    elementorFrontend.hooks.addAction('frontend/element_ready/advance-highlight-carousel.default', function($element) {
+        elementorFrontend.elementsHandler.addHandler(AdvanceHighlightCarouselHandler, {
+            $element: $element
+        });
+    });
+});
