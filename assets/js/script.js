@@ -27,52 +27,85 @@ class AdvanceHighlightCarouselHandler extends elementorModules.frontend.handlers
         this.elements.$nextEl.on('click', () => this.moveNext());
         this.elements.$prevEl.on('click', () => this.movePrev());
         
-        // Allow clicking on any slide to make it active
         this.elements.$track.on('click', '.advance-carousel-slide', (e) => {
             const index = jQuery(e.currentTarget).index();
-            if (index > 0) {
-                // If clicked slide is not first, move next until it is first
-                for(let i=0; i<index; i++){
-                    this.moveNext();
-                }
+            if (index !== this.currentIndex) {
+                this.currentIndex = index;
+                this.updateClasses();
             }
         });
     }
 
     onInit() {
         super.onInit();
-        this.updateBottomContent();
+        this.currentIndex = 0;
         
-        // Autoplay
+        // Ensure classes are perfectly synced with JS state on init
+        this.updateClasses();
+        
         const settings = this.$element.find('.advance-carousel-wrapper').data('settings');
         if (settings && settings.autoplay) {
-            this.autoplayInterval = setInterval(() => this.moveNext(), settings.speed || 3000);
+            this.startAutoplay(settings.speed);
             
-            // Pause on hover
-            this.$element.on('mouseenter', () => clearInterval(this.autoplayInterval));
-            this.$element.on('mouseleave', () => {
-                this.autoplayInterval = setInterval(() => this.moveNext(), settings.speed || 3000);
-            });
+            this.$element.on('mouseenter', () => this.stopAutoplay());
+            this.$element.on('mouseleave', () => this.startAutoplay(settings.speed));
         }
+    }
+    
+    startAutoplay(speed) {
+        if (this.autoplayInterval) clearInterval(this.autoplayInterval);
+        this.autoplayInterval = setInterval(() => this.moveNext(), speed || 3000);
+    }
+    
+    stopAutoplay() {
+        if (this.autoplayInterval) clearInterval(this.autoplayInterval);
     }
 
     moveNext() {
-        const track = this.elements.$track[0];
-        const first = track.firstElementChild;
-        track.appendChild(first);
-        this.updateBottomContent();
+        const total = this.elements.$track[0].children.length;
+        this.currentIndex = (this.currentIndex + 1) % total;
+        this.updateClasses();
     }
 
     movePrev() {
-        const track = this.elements.$track[0];
-        const last = track.lastElementChild;
-        track.prepend(last);
+        const total = this.elements.$track[0].children.length;
+        this.currentIndex = (this.currentIndex - 1 + total) % total;
+        this.updateClasses();
+    }
+
+    updateClasses() {
+        const slides = Array.from(this.elements.$track[0].children);
+        const total = slides.length;
+        
+        slides.forEach((slide, index) => {
+            // Remove old states (ac-state-active, ac-state-1, ac-state-hidden-left, etc)
+            slide.className = slide.className.replace(/ac-state-[^\s]+/g, '').trim();
+            
+            // Calculate relative offset from currentIndex
+            let offset = index - this.currentIndex;
+            if (offset < 0) {
+                offset += total; // wrap around
+            }
+            
+            // Apply new state class based on offset
+            if (offset === 0) {
+                slide.classList.add('ac-state-active');
+            } else if (offset >= 1 && offset <= 6) {
+                slide.classList.add(`ac-state-${offset}`);
+            } else if (offset === total - 1) {
+                slide.classList.add('ac-state-hidden-left');
+            } else {
+                slide.classList.add('ac-state-hidden-right');
+            }
+        });
+        
         this.updateBottomContent();
     }
 
     updateBottomContent() {
-        const activeSlide = this.elements.$track[0].firstElementChild;
+        const activeSlide = this.elements.$track[0].children[this.currentIndex];
         if (!activeSlide) return;
+        
         const $slide = jQuery(activeSlide);
         const desc = $slide.attr('data-desc');
         const link = $slide.attr('data-link');

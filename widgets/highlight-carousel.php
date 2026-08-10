@@ -292,6 +292,7 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 					'size' => 450,
 				],
 				'selectors' => [
+					'{{WRAPPER}} .advance-highlight-carousel' => 'height: {{SIZE}}{{UNIT}};',
 					'{{WRAPPER}} .advance-slide-image-wrapper' => 'height: {{SIZE}}{{UNIT}};',
 				],
 			]
@@ -385,13 +386,27 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 			</div>
 
 			<div class="advance-highlight-carousel">
-				<?php foreach ( $settings['slides'] as $index => $item ) : 
+				<?php 
+                $total_slides = count( $settings['slides'] );
+                foreach ( $settings['slides'] as $index => $item ) : 
 					$desc = ! empty( $item['item_desc'] ) ? wp_kses_post( $item['item_desc'] ) : '';
 					$link_url = ! empty( $item['item_link']['url'] ) ? esc_url( $item['item_link']['url'] ) : '#';
 					$link_text = ! empty( $item['item_link_text'] ) ? esc_html( $item['item_link_text'] ) : 'Learn More';
 					$is_external = ! empty( $item['item_link']['is_external'] ) ? 'true' : 'false';
+                    
+                    // Assign initial state classes
+                    $state_class = '';
+                    if ( $index === 0 ) {
+                        $state_class = 'ac-state-active';
+                    } elseif ( $index >= 1 && $index <= 6 ) {
+                        $state_class = 'ac-state-' . $index;
+                    } elseif ( $index === $total_slides - 1 ) {
+                        $state_class = 'ac-state-hidden-left';
+                    } else {
+                        $state_class = 'ac-state-hidden-right';
+                    }
 				?>
-					<div class="advance-carousel-slide" 
+					<div class="advance-carousel-slide <?php echo esc_attr( $state_class ); ?>" 
 						data-desc="<?php echo esc_attr( $desc ); ?>" 
 						data-link="<?php echo esc_attr( $link_url ); ?>" 
 						data-link-text="<?php echo esc_attr( $link_text ); ?>"
