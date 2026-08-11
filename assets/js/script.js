@@ -30,8 +30,8 @@ class AdvanceHighlightCarouselHandler extends elementorModules.frontend.handlers
         this.elements.$track.on('click', '.advance-carousel-slide', (e) => {
             const index = jQuery(e.currentTarget).index();
             if (index !== this.currentIndex) {
-                this.currentIndex = index;
-                this.updateClasses();
+                // Jump directly to the clicked slide
+                this.jumpTo(index);
             }
         });
     }
@@ -62,40 +62,74 @@ class AdvanceHighlightCarouselHandler extends elementorModules.frontend.handlers
     }
 
     moveNext() {
-        const total = this.elements.$track[0].children.length;
-        this.currentIndex = (this.currentIndex + 1) % total;
-        this.updateClasses();
+        this.jumpTo(this.currentIndex + 1);
     }
 
     movePrev() {
-        const total = this.elements.$track[0].children.length;
-        this.currentIndex = (this.currentIndex - 1 + total) % total;
-        this.updateClasses();
+        this.jumpTo(this.currentIndex - 1);
     }
 
-    updateClasses() {
+    jumpTo(newIndex) {
+        const total = this.elements.$track[0].children.length;
+        
+        // Calculate shortest jump
+        let jump = newIndex - this.currentIndex;
+        if (jump > total / 2) jump -= total;
+        if (jump < -total / 2) jump += total;
+        
+        if (jump === 0) return;
+        
+        this.currentIndex = (this.currentIndex + jump + total) % total;
+        this.updateClasses(jump);
+    }
+
+    updateClasses(jump = 0) {
         const slides = Array.from(this.elements.$track[0].children);
         const total = slides.length;
         
+        const numHiddenLeft = 3; 
+        
+        const isLeft = (offset) => offset >= total - numHiddenLeft && offset < total;
+        const isRight = (offset) => offset >= 1 && offset < total - numHiddenLeft;
+        
         slides.forEach((slide, index) => {
-            // Remove old states (ac-state-active, ac-state-1, ac-state-hidden-left, etc)
+            // Calculate old offset
+            let oldOffset = index - (this.currentIndex - jump);
+            if (oldOffset < 0) oldOffset += total * Math.ceil(Math.abs(oldOffset) / total);
+            oldOffset = oldOffset % total;
+            
+            // Calculate new offset
+            let newOffset = index - this.currentIndex;
+            if (newOffset < 0) newOffset += total * Math.ceil(Math.abs(newOffset) / total);
+            newOffset = newOffset % total;
+            
             slide.className = slide.className.replace(/ac-state-[^\s]+/g, '').trim();
             
-            // Calculate relative offset from currentIndex
-            let offset = index - this.currentIndex;
-            if (offset < 0) {
-                offset += total; // wrap around
+            let newClass = '';
+            if (newOffset === 0) {
+                newClass = 'ac-state-active';
+            } else if (newOffset >= 1 && newOffset <= 6) {
+                newClass = `ac-state-${newOffset}`;
+            } else if (isLeft(newOffset)) {
+                newClass = 'ac-state-hidden-left';
+            } else {
+                newClass = 'ac-state-hidden-right';
             }
             
-            // Apply new state class based on offset
-            if (offset === 0) {
-                slide.classList.add('ac-state-active');
-            } else if (offset >= 1 && offset <= 6) {
-                slide.classList.add(`ac-state-${offset}`);
-            } else if (offset === total - 1) {
-                slide.classList.add('ac-state-hidden-left');
+            let crossedBack = false;
+            if (jump > 0 && isLeft(oldOffset) && isRight(newOffset)) {
+                crossedBack = true;
+            } else if (jump < 0 && isRight(oldOffset) && isLeft(newOffset)) {
+                crossedBack = true;
+            }
+            
+            if (crossedBack) {
+                slide.style.transition = 'none';
+                slide.classList.add(newClass);
+                void slide.offsetWidth; 
+                slide.style.transition = '';
             } else {
-                slide.classList.add('ac-state-hidden-right');
+                slide.classList.add(newClass);
             }
         });
         
