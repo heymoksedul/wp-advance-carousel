@@ -408,3 +408,113 @@
 .sm-paused .smooth-marquee-row {
   animation-play-state: paused !important;
 }
+
+/* Interactive Center Slider */
+.is-slider-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    cursor: none; /* Hide default cursor when hovering over wrapper */
+    --inactive-scale: 0.7; /* Default fallback */
+    --active-scale: 1.0; /* Default fallback */
+}
+.is-slider-wrapper:hover .is-custom-cursor {
+    opacity: 1;
+}
+.is-slider-slide {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100%;
+}
+
+.is-slider-item {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    /* Default for far slides -> just scale */
+    transform: scale(var(--inactive-scale, 0.8));
+    transition: transform var(--transition-duration, 600ms) cubic-bezier(0.25, 1, 0.5, 1);
+    transform-origin: center top;
+}
+
+.swiper-slide-prev .is-slider-item {
+    /* Left side immediate -> push right to close gap */
+    transform: translateX(calc(100% * (var(--active-scale, 1.0) - var(--inactive-scale, 0.8)) / 2)) scale(var(--inactive-scale, 0.8));
+}
+
+.swiper-slide-active .is-slider-item {
+    /* Active -> centered */
+    transform: translateX(0) scale(var(--active-scale, 1.0));
+}
+
+.swiper-slide-next .is-slider-item {
+    /* Right side immediate -> push left to close gap */
+    transform: translateX(calc(-100% * (var(--active-scale, 1.0) - var(--inactive-scale, 0.8)) / 2)) scale(var(--inactive-scale, 0.8));
+}
+
+.is-slider-image {
+    overflow: hidden;
+    width: 100%;
+}
+
+.is-slider-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    pointer-events: none; /* Prevent image drag from interfering with cursor */
+}
+.is-slider-content {
+    padding: 20px 0;
+    pointer-events: auto;
+}
+.is-slider-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+}
+.is-slider-desc {
+    margin: 0;
+    font-size: 16px;
+    color: #666;
+    transition: all var(--transition-duration, 600ms) cubic-bezier(0.25, 1, 0.5, 1);
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+}
+.swiper-slide-active .is-slider-desc {
+    opacity: 1;
+    max-height: 500px;
+    margin-top: 10px;
+}
+
+/* Custom Cursor */
+.is-custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: 60px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none; /* Extremely important so it does not block clicks */
+    z-index: 9999;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s ease;
+}
+.is-custom-cursor i {
+    color: #fff;
+    font-size: 20px;
+    display: none;
+}
+.is-custom-cursor.dir-left .is-cursor-left {
+    display: block;
+}
+.is-custom-cursor.dir-right .is-cursor-right {
+    display: block;
+}

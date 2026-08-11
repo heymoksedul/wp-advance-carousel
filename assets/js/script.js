@@ -232,6 +232,94 @@ class SmoothMarqueeHandler extends elementorModules.frontend.handlers.Base {
     }
 }
 
+class InteractiveSliderHandler extends elementorModules.frontend.handlers.Base {
+    getDefaultSettings() {
+        return {
+            selectors: {
+                wrapper: '.is-slider-wrapper',
+                track: '.swiper-wrapper',
+                cursor: '.is-custom-cursor'
+            }
+        };
+    }
+
+    getDefaultElements() {
+        const selectors = this.getSettings('selectors');
+        return {
+            $wrapper: this.$element.find(selectors.wrapper),
+            $track: this.$element.find(selectors.track),
+            $cursor: this.$element.find(selectors.cursor)
+        };
+    }
+
+    bindEvents() {
+        const wrapper = this.elements.$wrapper[0];
+        
+        wrapper.addEventListener('mousemove', (e) => {
+            // Fix: Move cursor relative to the viewport since position is fixed!
+            this.elements.$cursor[0].style.left = `${e.clientX}px`;
+            this.elements.$cursor[0].style.top = `${e.clientY}px`;
+            
+            const rect = wrapper.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            
+            // Determine direction based on mouse position relative to wrapper width
+            if (x < rect.width / 2) {
+                this.elements.$cursor.removeClass('dir-right').addClass('dir-left');
+                this.currentDirection = -1;
+            } else {
+                this.elements.$cursor.removeClass('dir-left').addClass('dir-right');
+                this.currentDirection = 1;
+            }
+        });
+        
+        wrapper.addEventListener('click', () => {
+            if (this.swiper) {
+                if (this.currentDirection === -1) {
+                    this.swiper.slidePrev();
+                } else {
+                    this.swiper.slideNext();
+                }
+            }
+        });
+    }
+
+    onInit() {
+        super.onInit();
+        this.currentDirection = 1;
+        
+        // Retrieve gap setting from Elementor
+        const settings = this.getElementSettings();
+        let spaceBetween = 40;
+        if (settings.item_gap !== undefined) {
+            if (typeof settings.item_gap === 'object' && settings.item_gap.size !== undefined) {
+                spaceBetween = settings.item_gap.size === '' ? 40 : Number(settings.item_gap.size);
+            } else if (typeof settings.item_gap === 'number' || typeof settings.item_gap === 'string') {
+                spaceBetween = settings.item_gap === '' ? 40 : Number(settings.item_gap);
+            }
+        }
+        const transitionDuration = settings.transition_duration ? settings.transition_duration : 600;
+        
+        const inactiveScale = settings.inactive_scale ? settings.inactive_scale.size : 0.7;
+        
+        // Initialize Swiper
+        const swiperOptions = {
+            slidesPerView: 'auto',
+            centeredSlides: true,
+            loop: true,
+            spaceBetween: spaceBetween,
+            speed: transitionDuration,
+            grabCursor: false, // We use custom cursor
+        };
+        
+        // Depending on Elementor version, Swiper is available natively
+        const Swiper = elementorFrontend.utils.swiper;
+        new Swiper(this.elements.$wrapper, swiperOptions).then((swiperInstance) => {
+            this.swiper = swiperInstance;
+        });
+    }
+}
+
 jQuery(window).on('elementor/frontend/init', () => {
     elementorFrontend.hooks.addAction('frontend/element_ready/advance-highlight-carousel.default', function($element) {
         elementorFrontend.elementsHandler.addHandler(AdvanceHighlightCarouselHandler, {
@@ -241,6 +329,12 @@ jQuery(window).on('elementor/frontend/init', () => {
     
     elementorFrontend.hooks.addAction('frontend/element_ready/smooth-marquee-carousel.default', function($element) {
         elementorFrontend.elementsHandler.addHandler(SmoothMarqueeHandler, {
+            $element: $element
+        });
+    });
+    
+    elementorFrontend.hooks.addAction('frontend/element_ready/interactive-slider-carousel.default', function($element) {
+        elementorFrontend.elementsHandler.addHandler(InteractiveSliderHandler, {
             $element: $element
         });
     });
