@@ -353,6 +353,26 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 			]
 		);
 
+		$this->add_responsive_control(
+			'desc_max_width',
+			[
+				'label' => esc_html__( 'Max Width', 'advance-carousel' ),
+				'type' => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => [ 'px', '%', 'vw' ],
+				'range' => [
+					'%' => [ 'min' => 10, 'max' => 100 ],
+					'px' => [ 'min' => 100, 'max' => 1200 ],
+				],
+				'default' => [
+					'unit' => '%',
+					'size' => 100,
+				],
+				'selectors' => [
+					'{{WRAPPER}} .advance-carousel-desc' => 'max-width: {{SIZE}}{{UNIT}};',
+				],
+			]
+		);
+
 		$this->add_group_control(
 			\Elementor\Group_Control_Typography::get_type(),
 			[
@@ -390,6 +410,23 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 				'name' => 'button_typography',
 				'label' => esc_html__( 'Typography', 'advance-carousel' ),
 				'selector' => '{{WRAPPER}} .advance-slide-link',
+			]
+		);
+
+		$this->add_responsive_control(
+			'button_width',
+			[
+				'label' => esc_html__( 'Button Width', 'advance-carousel' ),
+				'type' => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => [ 'px', '%', 'vw' ],
+				'range' => [
+					'%' => [ 'min' => 10, 'max' => 100 ],
+					'px' => [ 'min' => 50, 'max' => 500 ],
+				],
+				'selectors' => [
+					'{{WRAPPER}} .advance-carousel-action' => 'width: {{SIZE}}{{UNIT}};',
+					'{{WRAPPER}} .advance-slide-link' => 'width: 100%; justify-content: center;',
+				],
 			]
 		);
 
