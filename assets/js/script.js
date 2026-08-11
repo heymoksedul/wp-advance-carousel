@@ -189,9 +189,58 @@ class AdvanceHighlightCarouselHandler extends elementorModules.frontend.handlers
     }
 }
 
+class SmoothMarqueeHandler extends elementorModules.frontend.handlers.Base {
+    getDefaultSettings() {
+        return {
+            selectors: {
+                wrapper: '.smooth-marquee-wrapper',
+                playPauseBtn: '.smooth-marquee-play-pause',
+                playPauseIcon: '#sm-play-pause-icon'
+            }
+        };
+    }
+
+    getDefaultElements() {
+        const selectors = this.getSettings('selectors');
+        return {
+            $wrapper: this.$element.find(selectors.wrapper),
+            $playPauseBtn: this.$element.find(selectors.playPauseBtn),
+            $playPauseIcon: this.$element.find(selectors.playPauseIcon)
+        };
+    }
+
+    bindEvents() {
+        if (this.elements.$playPauseBtn.length) {
+            this.elements.$playPauseBtn.on('click', () => {
+                this.togglePlayPause();
+            });
+        }
+    }
+
+    onInit() {
+        super.onInit();
+        this.isPaused = false;
+    }
+
+    togglePlayPause() {
+        this.isPaused = !this.isPaused;
+        if (this.isPaused) {
+            this.elements.$wrapper.addClass('sm-paused');
+        } else {
+            this.elements.$wrapper.removeClass('sm-paused');
+        }
+    }
+}
+
 jQuery(window).on('elementor/frontend/init', () => {
     elementorFrontend.hooks.addAction('frontend/element_ready/advance-highlight-carousel.default', function($element) {
         elementorFrontend.elementsHandler.addHandler(AdvanceHighlightCarouselHandler, {
+            $element: $element
+        });
+    });
+    
+    elementorFrontend.hooks.addAction('frontend/element_ready/smooth-marquee-carousel.default', function($element) {
+        elementorFrontend.elementsHandler.addHandler(SmoothMarqueeHandler, {
             $element: $element
         });
     });
