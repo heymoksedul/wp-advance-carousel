@@ -229,6 +229,18 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
+			'transition_speed',
+			[
+				'label' => esc_html__( 'Transition Speed (ms)', 'advance-carousel' ),
+				'type' => \Elementor\Controls_Manager::NUMBER,
+				'default' => 400,
+				'selectors' => [
+					'{{WRAPPER}} .advance-carousel-slide' => 'transition-duration: {{VALUE}}ms !important;',
+				],
+			]
+		);
+
+		$this->add_control(
 			'show_arrows',
 			[
 				'label' => esc_html__( 'Show Arrows', 'advance-carousel' ),
@@ -255,6 +267,17 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 					'show_arrows' => 'yes',
 				],
 				'prefix_class' => 'ac-arrow-pos-',
+			]
+		);
+
+		$this->add_control(
+			'remote_id',
+			[
+				'label' => esc_html__( 'Remote ID', 'advance-carousel' ),
+				'type' => \Elementor\Controls_Manager::TEXT,
+				'description' => esc_html__( 'Connect this carousel with Animex Remote Arrows widget by matching this ID.', 'advance-carousel' ),
+				'placeholder' => 'hero-carousel',
+				'separator' => 'before',
 			]
 		);
 
@@ -321,6 +344,15 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 			]
 		);
 
+		$this->add_control(
+			'desc_heading',
+			[
+				'label' => esc_html__( 'Description', 'advance-carousel' ),
+				'type' => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
+			]
+		);
+
 		$this->add_group_control(
 			\Elementor\Group_Control_Typography::get_type(),
 			[
@@ -340,16 +372,130 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 				],
 			]
 		);
-		
+
+		$this->end_controls_section();
+
+		// Button Style
+		$this->start_controls_section(
+			'style_button_section',
+			[
+				'label' => esc_html__( 'Button Style', 'advance-carousel' ),
+				'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			[
+				'name' => 'button_typography',
+				'label' => esc_html__( 'Typography', 'advance-carousel' ),
+				'selector' => '{{WRAPPER}} .advance-slide-link',
+			]
+		);
+
+		$this->start_controls_tabs( 'tabs_button_style' );
+
+		$this->start_controls_tab(
+			'tab_button_normal',
+			[
+				'label' => esc_html__( 'Normal', 'advance-carousel' ),
+			]
+		);
+
 		$this->add_control(
 			'button_color',
 			[
-				'label' => esc_html__( 'Button Text Color', 'advance-carousel' ),
+				'label' => esc_html__( 'Text Color', 'advance-carousel' ),
 				'type' => \Elementor\Controls_Manager::COLOR,
 				'selectors' => [
 					'{{WRAPPER}} .advance-slide-link' => 'color: {{VALUE}};',
 				],
+			]
+		);
+
+		$this->add_control(
+			'button_bg_color',
+			[
+				'label' => esc_html__( 'Background Color', 'advance-carousel' ),
+				'type' => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .advance-slide-link' => 'background-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Border::get_type(),
+			[
+				'name' => 'button_border',
+				'selector' => '{{WRAPPER}} .advance-slide-link',
+			]
+		);
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'tab_button_hover',
+			[
+				'label' => esc_html__( 'Hover', 'advance-carousel' ),
+			]
+		);
+
+		$this->add_control(
+			'button_hover_color',
+			[
+				'label' => esc_html__( 'Text Color', 'advance-carousel' ),
+				'type' => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .advance-slide-link:hover' => 'color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_control(
+			'button_hover_bg_color',
+			[
+				'label' => esc_html__( 'Background Color', 'advance-carousel' ),
+				'type' => \Elementor\Controls_Manager::COLOR,
+				'selectors' => [
+					'{{WRAPPER}} .advance-slide-link:hover' => 'background-color: {{VALUE}};',
+				],
+			]
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Border::get_type(),
+			[
+				'name' => 'button_hover_border',
+				'selector' => '{{WRAPPER}} .advance-slide-link:hover',
+			]
+		);
+
+		$this->end_controls_tab();
+		$this->end_controls_tabs();
+
+		$this->add_responsive_control(
+			'button_padding',
+			[
+				'label' => esc_html__( 'Padding', 'advance-carousel' ),
+				'type' => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%', 'em' ],
+				'selectors' => [
+					'{{WRAPPER}} .advance-slide-link' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}}; display: inline-block;',
+				],
 				'separator' => 'before',
+			]
+		);
+
+		$this->add_control(
+			'button_border_radius',
+			[
+				'label' => esc_html__( 'Border Radius', 'advance-carousel' ),
+				'type' => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => [ 'px', '%', 'em' ],
+				'selectors' => [
+					'{{WRAPPER}} .advance-slide-link' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				],
 			]
 		);
 
@@ -363,7 +509,16 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 			return;
 		}
 
-		$this->add_render_attribute( 'wrapper', 'class', 'advance-carousel-wrapper' );
+		$wrapper_classes = [ 'advance-carousel-wrapper' ];
+		if ( ! empty( $settings['remote_id'] ) ) {
+			$wrapper_classes[] = 'animex-elite-carousel-container';
+		}
+
+		$this->add_render_attribute( 'wrapper', 'class', $wrapper_classes );
+		if ( ! empty( $settings['remote_id'] ) ) {
+			$this->add_render_attribute( 'wrapper', 'data-remote-id', esc_attr( $settings['remote_id'] ) );
+		}
+		
 		$this->add_render_attribute( 'wrapper', 'data-settings', wp_json_encode( [
 			'autoplay' => $settings['autoplay'] === 'yes',
 			'speed'    => $settings['autoplay_speed'],
@@ -372,8 +527,8 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 		?>
 		<div <?php $this->print_render_attribute_string( 'wrapper' ); ?>>
 			
-			<div class="advance-carousel-header">
-				<?php if ( 'yes' === $settings['show_arrows'] ) : ?>
+			<?php if ( 'yes' === $settings['show_arrows'] ) : ?>
+				<div class="advance-carousel-header">
 					<div class="advance-carousel-nav">
 						<div class="advance-carousel-nav-prev">
 							<i class="eicon-chevron-left" aria-hidden="true"></i>
@@ -382,8 +537,8 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
 							<i class="eicon-chevron-right" aria-hidden="true"></i>
 						</div>
 					</div>
-				<?php endif; ?>
-			</div>
+				</div>
+			<?php endif; ?>
 
 			<div class="advance-highlight-carousel">
 				<?php 
@@ -407,6 +562,7 @@ class Advance_Carousel_Widget extends \Elementor\Widget_Base {
                     }
 				?>
 					<div class="advance-carousel-slide <?php echo esc_attr( $state_class ); ?>" 
+						data-title="<?php echo esc_attr( $item['item_title'] ); ?>"
 						data-desc="<?php echo esc_attr( $desc ); ?>" 
 						data-link="<?php echo esc_attr( $link_url ); ?>" 
 						data-link-text="<?php echo esc_attr( $link_text ); ?>"

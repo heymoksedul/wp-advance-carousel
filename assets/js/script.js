@@ -34,6 +34,15 @@ class AdvanceHighlightCarouselHandler extends elementorModules.frontend.handlers
                 this.jumpTo(index);
             }
         });
+        
+        // Animex Remote Arrows Integration
+        this.$element.on('animex/carousel/prev', () => {
+            this.movePrev();
+        });
+        
+        this.$element.on('animex/carousel/next', () => {
+            this.moveNext();
+        });
     }
 
     onInit() {
@@ -71,15 +80,25 @@ class AdvanceHighlightCarouselHandler extends elementorModules.frontend.handlers
 
     jumpTo(newIndex) {
         const total = this.elements.$track[0].children.length;
+        if (total === 0) return;
         
-        // Calculate shortest jump
-        let jump = newIndex - this.currentIndex;
-        if (jump > total / 2) jump -= total;
-        if (jump < -total / 2) jump += total;
+        let newOffset = newIndex - this.currentIndex;
+        if (newOffset < 0) newOffset += total * Math.ceil(Math.abs(newOffset) / total);
+        newOffset = newOffset % total;
         
-        if (jump === 0) return;
+        if (newOffset === 0) return;
         
-        this.currentIndex = (this.currentIndex + jump + total) % total;
+        const numHiddenLeft = 3;
+        const isLeft = (offset) => offset >= total - numHiddenLeft && offset < total;
+        
+        let jump = 0;
+        if (isLeft(newOffset)) {
+            jump = newOffset - total; // Jump backwards to reach left items
+        } else {
+            jump = newOffset; // Jump forwards to reach right items
+        }
+        
+        this.currentIndex = newIndex;
         this.updateClasses(jump);
     }
 
@@ -116,11 +135,18 @@ class AdvanceHighlightCarouselHandler extends elementorModules.frontend.handlers
                 newClass = 'ac-state-hidden-right';
             }
             
+            const B = total - numHiddenLeft;
             let crossedBack = false;
-            if (jump > 0 && isLeft(oldOffset) && isRight(newOffset)) {
-                crossedBack = true;
-            } else if (jump < 0 && isRight(oldOffset) && isLeft(newOffset)) {
-                crossedBack = true;
+            
+            if (jump > 0) {
+                if ((oldOffset >= B && oldOffset - jump < B) || (oldOffset < B && oldOffset - jump < B - total)) {
+                    crossedBack = true;
+                }
+            } else if (jump < 0) {
+                const absJump = Math.abs(jump);
+                if ((oldOffset < B && oldOffset + absJump >= B) || (oldOffset >= B && oldOffset + absJump >= B + total)) {
+                    crossedBack = true;
+                }
             }
             
             if (crossedBack) {
@@ -141,11 +167,12 @@ class AdvanceHighlightCarouselHandler extends elementorModules.frontend.handlers
         if (!activeSlide) return;
         
         const $slide = jQuery(activeSlide);
+        const title = $slide.attr('data-title');
         const desc = $slide.attr('data-desc');
         const link = $slide.attr('data-link');
         const linkText = $slide.attr('data-link-text');
         const isExternal = $slide.attr('data-external');
-
+        
         if (desc) {
             this.elements.$descEl.html(desc);
         } else {

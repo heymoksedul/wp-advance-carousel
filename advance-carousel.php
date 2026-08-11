@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Advance_Carousel_Extension {
 
-	const VERSION = '1.0.0';
+	const VERSION = '1.0.4';
 	const MINIMUM_ELEMENTOR_VERSION = '3.0.0';
 	const MINIMUM_PHP_VERSION = '7.0';
 
