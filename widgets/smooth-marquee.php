@@ -25,6 +25,10 @@ class Smooth_Marquee_Widget extends \Elementor\Widget_Base {
 		return [ 'advance-carousel-style' ];
 	}
 
+	public function get_script_depends() {
+		return [ 'advance-carousel-script' ];
+	}
+
 	protected function register_controls() {
 		// Content Tab
 		$this->start_controls_section(

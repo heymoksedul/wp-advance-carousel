@@ -314,9 +314,112 @@ class InteractiveSliderHandler extends elementorModules.frontend.handlers.Base {
         
         // Depending on Elementor version, Swiper is available natively
         const Swiper = elementorFrontend.utils.swiper;
-        new Swiper(this.elements.$wrapper, swiperOptions).then((swiperInstance) => {
-            this.swiper = swiperInstance;
+        if ('function' === typeof Swiper) {
+            new Swiper(this.elements.$wrapper[0] || this.elements.$wrapper, swiperOptions).then((swiperInstance) => {
+                this.swiper = swiperInstance;
+            }).catch(() => {
+                if (window.Swiper) {
+                    this.swiper = new window.Swiper(this.elements.$wrapper[0] || this.elements.$wrapper, swiperOptions);
+                }
+            });
+        } else if (window.Swiper) {
+            this.swiper = new window.Swiper(this.elements.$wrapper[0] || this.elements.$wrapper, swiperOptions);
+        }
+    }
+}
+
+class InteractiveCardSliderHandler extends elementorModules.frontend.handlers.Base {
+    getDefaultSettings() {
+        return {
+            selectors: {
+                wrapper: '.aic-card-slider-wrapper',
+                container: '.aic-swiper-container',
+                prevBtn: '.aic-btn-prev',
+                nextBtn: '.aic-btn-next',
+                pagination: '.aic-pagination'
+            }
+        };
+    }
+
+    getDefaultElements() {
+        const selectors = this.getSettings('selectors');
+        return {
+            $wrapper: this.$element.find(selectors.wrapper),
+            $container: this.$element.find(selectors.container),
+            $prevBtn: this.$element.find(selectors.prevBtn),
+            $nextBtn: this.$element.find(selectors.nextBtn),
+            $pagination: this.$element.find(selectors.pagination)
+        };
+    }
+
+    bindEvents() {
+        // Animex Remote Navigation Integration
+        this.$element.on('animex/carousel/prev', () => {
+            if (this.swiper) this.swiper.slidePrev();
         });
+        
+        this.$element.on('animex/carousel/next', () => {
+            if (this.swiper) this.swiper.slideNext();
+        });
+    }
+
+    onInit() {
+        super.onInit();
+        this.initSwiper();
+    }
+
+    initSwiper() {
+        const $container = this.elements.$container;
+        if (!$container.length) return;
+
+        const config = this.elements.$wrapper.data('slider-config') || {};
+
+        const swiperOptions = {
+            slidesPerView: config.slidesPerView || 3.5,
+            spaceBetween: config.spaceBetween !== undefined ? config.spaceBetween : 24,
+            loop: config.loop !== false,
+            speed: config.speed || 600,
+            grabCursor: true,
+            breakpoints: config.breakpoints || {
+                320: { slidesPerView: 1.2, spaceBetween: 16 },
+                768: { slidesPerView: 2.2, spaceBetween: 20 },
+                1025: { slidesPerView: 3.5, spaceBetween: 24 }
+            }
+        };
+
+        if (config.autoplay) {
+            swiperOptions.autoplay = config.autoplay;
+        }
+
+        // Navigation Arrows
+        if (this.elements.$nextBtn.length || this.elements.$prevBtn.length) {
+            swiperOptions.navigation = {
+                nextEl: this.elements.$nextBtn[0],
+                prevEl: this.elements.$prevBtn[0]
+            };
+        }
+
+        // Pagination
+        if (this.elements.$pagination.length) {
+            swiperOptions.pagination = {
+                el: this.elements.$pagination[0],
+                type: config.paginationType || 'bullets',
+                clickable: true
+            };
+        }
+
+        const Swiper = elementorFrontend.utils.swiper;
+        if ('function' === typeof Swiper) {
+            new Swiper($container[0], swiperOptions).then((swiperInstance) => {
+                this.swiper = swiperInstance;
+            }).catch(() => {
+                if (window.Swiper) {
+                    this.swiper = new window.Swiper($container[0], swiperOptions);
+                }
+            });
+        } else if (window.Swiper) {
+            this.swiper = new window.Swiper($container[0], swiperOptions);
+        }
     }
 }
 
@@ -335,6 +438,12 @@ jQuery(window).on('elementor/frontend/init', () => {
     
     elementorFrontend.hooks.addAction('frontend/element_ready/interactive-slider-carousel.default', function($element) {
         elementorFrontend.elementsHandler.addHandler(InteractiveSliderHandler, {
+            $element: $element
+        });
+    });
+
+    elementorFrontend.hooks.addAction('frontend/element_ready/interactive-card-slider.default', function($element) {
+        elementorFrontend.elementsHandler.addHandler(InteractiveCardSliderHandler, {
             $element: $element
         });
     });

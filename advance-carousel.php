@@ -123,11 +123,13 @@ final class Advance_Carousel_Extension {
 		require_once( __DIR__ . '/widgets/highlight-carousel.php' );
 		require_once( __DIR__ . '/widgets/smooth-marquee.php' );
 		require_once( __DIR__ . '/widgets/interactive-slider.php' );
+		require_once( __DIR__ . '/widgets/interactive-card-slider.php' );
 
-		// Register widget
+		// Register widgets
 		$widgets_manager->register( new \Advance_Carousel_Widget() );
 		$widgets_manager->register( new \Smooth_Marquee_Widget() );
 		$widgets_manager->register( new \Interactive_Slider_Widget() );
+		$widgets_manager->register( new \Interactive_Card_Slider_Widget() );
 	}
 
 }
